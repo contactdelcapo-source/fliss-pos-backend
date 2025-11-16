@@ -1,0 +1,11 @@
+import express from 'express';
+import dotenv from 'dotenv';
+import { query } from './db.js';
+import authRouter from './auth.js';
+dotenv.config();
+const app = express();
+app.use(express.json());
+app.use('/auth', authRouter);
+app.get('/', (req,res)=>res.json({ok:true,message:'Fliss POS Backend OK'}));
+const PORT = process.env.PORT || 10000;
+app.listen(PORT,()=>console.log("Server running on",PORT));
