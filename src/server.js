@@ -14,7 +14,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Route de test
+// Route test
 app.get('/', (req, res) => {
   res.json({
     ok: true,
@@ -24,47 +24,40 @@ app.get('/', (req, res) => {
 });
 
 /* =========================================================
-   ✅ LOGIN API PROPRE – SUPER ADMIN GHASSEN
-   Route utilisée par ton front : POST /api/auth/login
-   Email : ghassen@thefliss.com
-   Mot de passe : 123456
+   🔐 LOGIN DEV – SUPER ADMIN GHASSEN (MODE TEMPORAIRE)
+   - Route utilisée par ton front : POST /api/auth/login
+   - Accepte n’importe quel mot de passe
+   - Si l’email est vide → erreur
+   - Te connecte toujours en super_admin
    ========================================================= */
-app.post('/api/auth/login', async (req, res) => {
+app.post('/api/auth/login', (req, res) => {
   try {
     const { username, email, password } = req.body || {};
     const loginId = (email || username || '').toLowerCase().trim();
 
-    if (!loginId || !password) {
+    if (!loginId) {
       return res.status(400).json({
         ok: false,
-        error: 'email_et_mot_de_passe_obligatoires'
+        error: 'email_obligatoire'
       });
     }
 
-    // 🔐 Compte super admin FIXE
-    if (loginId === 'ghassen@thefliss.com' && password === '123456') {
-      const user = {
-        id: 1,
-        email: 'ghassen@thefliss.com',
-        nom: 'Ghassen Fliss',
-        role: 'super_admin',
-        agences: ['Valence']   // tu pourras ajuster si besoin
-      };
+    // On construit un user super_admin basé sur ton email
+    const user = {
+      id: 1,
+      email: loginId,
+      nom: 'Super Admin',
+      role: 'super_admin',
+      agences: ['Valence', 'Pierrelatte']
+    };
 
-      const token = 'fliss-dev-token-' + Date.now();
+    // Token DEV (juste une string)
+    const token = 'fliss-dev-token-' + Date.now();
 
-      return res.json({
-        ok: true,
-        user,
-        token
-      });
-    }
-
-    // Si ce n’est pas le compte ghassen@thefliss.com,
-    // on renvoie un refus propre.
-    return res.status(401).json({
-      ok: false,
-      error: 'Identifiants invalides'
+    return res.json({
+      ok: true,
+      user,
+      token
     });
   } catch (err) {
     console.error('Erreur login /api/auth/login', err);
@@ -75,14 +68,14 @@ app.post('/api/auth/login', async (req, res) => {
   }
 });
 
-// Routes API existantes
+// Les autres routes gardent le comportement d’origine
 app.use('/api/auth', authRouter);
 app.use('/api/products', productsRouter);
 app.use('/api/sales', salesRouter);
 app.use('/api/stats', statsRouter);
 app.use('/api/agencies', agenciesRouter);
 
-// Port pour Render
+// Port Render
 const PORT = process.env.PORT || 10000;
 
 (async () => {
