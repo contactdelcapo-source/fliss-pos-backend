@@ -14,7 +14,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Route test
+// 🔍 ROUTE DE TEST
 app.get('/', (req, res) => {
   res.json({
     ok: true,
@@ -23,26 +23,13 @@ app.get('/', (req, res) => {
   });
 });
 
-// === Routers des autres modules ===
-app.use('/api/products', productsRouter);
-app.use('/api/sales', salesRouter);
-app.use('/api/stats', statsRouter);
-app.use('/api/agencies', agenciesRouter);
-
-// === Router AUTH mais SANS le login précédent ===
-app.use('/api/auth', (req, res, next) => {
-  // On neutralise /api/auth/login du router original
-  if (req.path === '/login') {
-    return next('route');
-  }
-  return authRouter(req, res, next);
-});
-
-// === LOGIN DEV — SUPER ADMIN ===
-// Toujours chargé EN DERNIER
+/* =========================================================
+   🔐 LOGIN DEV – SUPER ADMIN GHASSEN (MODE TEMPORAIRE)
+   Route utilisée par ton front : POST /api/auth/login
+   ========================================================= */
 app.post('/api/auth/login', (req, res) => {
   try {
-    const { username, email } = req.body || {};
+    const { username, email, password } = req.body || {};
     const loginId = (email || username || '').toLowerCase().trim();
 
     if (!loginId) {
@@ -60,13 +47,16 @@ app.post('/api/auth/login', (req, res) => {
       agences: ['Valence', 'Pierrelatte']
     };
 
+    const token = 'fliss-dev-token-' + Date.now();
+
     return res.json({
       ok: true,
       user,
-      token: 'fliss-dev-token-' + Date.now()
+      token
     });
+
   } catch (err) {
-    console.error('Erreur login DEV', err);
+    console.error('Erreur login /api/auth/login', err);
     return res.status(500).json({
       ok: false,
       error: 'erreur_interne'
@@ -74,7 +64,14 @@ app.post('/api/auth/login', (req, res) => {
   }
 });
 
-// === Lancement Serveur ===
+// 🔗 ROUTES D’API RÉELLES
+app.use('/api/auth', authRouter);
+app.use('/api/products', productsRouter);
+app.use('/api/sales', salesRouter);
+app.use('/api/stats', statsRouter);
+app.use('/api/agencies', agenciesRouter);
+
+// 🚀 PORT RENDER
 const PORT = process.env.PORT || 10000;
 
 (async () => {
