@@ -11,7 +11,6 @@ import { initDb } from './db.js';
 
 const app = express();
 
-// Middlewares
 app.use(cors());
 app.use(express.json());
 
@@ -24,6 +23,9 @@ app.get('/', (req, res) => {
   });
 });
 
+// 👇 ROUTE LOGIN COMPATIBLE FRONT
+app.post('/api/login', authRouter);
+
 // API routes
 app.use('/api/auth', authRouter);
 app.use('/api/products', productsRouter);
@@ -31,11 +33,8 @@ app.use('/api/sales', salesRouter);
 app.use('/api/stats', statsRouter);
 app.use('/api/agencies', agenciesRouter);
 
-// 🚀 IMPORTANT POUR RENDER
-// Render impose d'écouter sur process.env.PORT
 const PORT = process.env.PORT || 10000;
 
-// Boot sequence
 (async () => {
   try {
     await initDb();
@@ -47,4 +46,3 @@ const PORT = process.env.PORT || 10000;
     process.exit(1);
   }
 })();
-
