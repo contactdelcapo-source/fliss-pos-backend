@@ -10,7 +10,6 @@ import agenciesRouter from './agencies.js';
 import { initDb } from './db.js';
 
 const app = express();
-
 app.use(cors());
 app.use(express.json());
 
@@ -23,8 +22,11 @@ app.get('/', (req, res) => {
   });
 });
 
-// 👇 ROUTE LOGIN COMPATIBLE FRONT
-app.post('/api/login', authRouter);
+// 🔥 Route login compatible avec ton FRONT
+app.post("/api/login", (req, res, next) => {
+  req.url = "/login"; // redirection interne
+  authRouter.handle(req, res, next);
+});
 
 // API routes
 app.use('/api/auth', authRouter);
@@ -33,6 +35,7 @@ app.use('/api/sales', salesRouter);
 app.use('/api/stats', statsRouter);
 app.use('/api/agencies', agenciesRouter);
 
+// Render port fix
 const PORT = process.env.PORT || 10000;
 
 (async () => {
