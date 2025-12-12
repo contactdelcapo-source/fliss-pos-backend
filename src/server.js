@@ -13,8 +13,8 @@ const app = express();
 /* =========================================================
    🔧 CONFIG EXPRESS — IMPORTANT
    ========================================================= */
-app.use(cors({ origin: "*"}));
-app.use(express.json());            // <-- OBLIGATOIRE AVANT LES ROUTES
+app.use(cors({ origin: "*" }));
+app.use(express.json()); // OBLIGATOIRE pour lire req.body JSON
 app.use(express.urlencoded({ extended: true }));
 
 /* =========================================================
