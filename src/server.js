@@ -38,7 +38,10 @@ app.post("/api/auth/login", (req, res) => {
     const loginId = (email || username || "").toLowerCase().trim();
 
     if (!loginId) {
-      return res.status(400).json({ ok: false, error: "email_obligatoire" });
+      return res.status(400).json({
+        ok: false,
+        error: "email_obligatoire"
+      });
     }
 
     const user = {
@@ -58,7 +61,10 @@ app.post("/api/auth/login", (req, res) => {
     });
   } catch (err) {
     console.error("Erreur login /api/auth/login", err);
-    return res.status(500).json({ ok: false, error: "erreur_interne" });
+    return res.status(500).json({
+      ok: false,
+      error: "erreur_interne"
+    });
   }
 });
 
