@@ -23,16 +23,26 @@ app.get('/', (req, res) => {
   });
 });
 
-/* =========================================================
-   🔐 LOGIN DEV – SUPER ADMIN GHASSEN (MODE TEMPORAIRE)
-   - Route utilisée par ton front : POST /api/auth/login
-   - Accepte n’importe quel mot de passe
-   - Si l’email est vide → erreur
-   - Te connecte toujours en super_admin
-   ========================================================= */
+// === Routers des autres modules ===
+app.use('/api/products', productsRouter);
+app.use('/api/sales', salesRouter);
+app.use('/api/stats', statsRouter);
+app.use('/api/agencies', agenciesRouter);
+
+// === Router AUTH mais SANS le login précédent ===
+app.use('/api/auth', (req, res, next) => {
+  // On neutralise /api/auth/login du router original
+  if (req.path === '/login') {
+    return next('route');
+  }
+  return authRouter(req, res, next);
+});
+
+// === LOGIN DEV — SUPER ADMIN ===
+// Toujours chargé EN DERNIER
 app.post('/api/auth/login', (req, res) => {
   try {
-    const { username, email, password } = req.body || {};
+    const { username, email } = req.body || {};
     const loginId = (email || username || '').toLowerCase().trim();
 
     if (!loginId) {
@@ -42,7 +52,6 @@ app.post('/api/auth/login', (req, res) => {
       });
     }
 
-    // On construit un user super_admin basé sur ton email
     const user = {
       id: 1,
       email: loginId,
@@ -51,16 +60,13 @@ app.post('/api/auth/login', (req, res) => {
       agences: ['Valence', 'Pierrelatte']
     };
 
-    // Token DEV (juste une string)
-    const token = 'fliss-dev-token-' + Date.now();
-
     return res.json({
       ok: true,
       user,
-      token
+      token: 'fliss-dev-token-' + Date.now()
     });
   } catch (err) {
-    console.error('Erreur login /api/auth/login', err);
+    console.error('Erreur login DEV', err);
     return res.status(500).json({
       ok: false,
       error: 'erreur_interne'
@@ -68,14 +74,7 @@ app.post('/api/auth/login', (req, res) => {
   }
 });
 
-// Les autres routes gardent le comportement d’origine
-app.use('/api/auth', authRouter);
-app.use('/api/products', productsRouter);
-app.use('/api/sales', salesRouter);
-app.use('/api/stats', statsRouter);
-app.use('/api/agencies', agenciesRouter);
-
-// Port Render
+// === Lancement Serveur ===
 const PORT = process.env.PORT || 10000;
 
 (async () => {
